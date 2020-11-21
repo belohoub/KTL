@@ -6,7 +6,7 @@
 
 void printTemp(void)
 { 
-    printf("  - temperature is fine :-)\n");
+    printf("  - temperature is too high! :-(\n");
 }
 
 #endif

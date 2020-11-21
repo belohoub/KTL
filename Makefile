@@ -3,7 +3,7 @@ BUILD=./build/
 
 OPTIMIZE = -Os
 LDFLAGS  =
-CFLAGS   = $(OPTIMIZE) -DMODULE_RH -DMODULE_TEMP
+CFLAGS   = $(OPTIMIZE)
 
 CC=gcc
 LD=gcc
@@ -20,7 +20,7 @@ OBJS  = $(addprefix $(BUILD),$(notdir $(SRCS:.c=.o)))
 SRCPATHS = $(sort $(dir $(SRCS)))
 VPATH = $(SRCPATHS)
 
-.PHONY: all clean print
+.PHONY: all clean print rh temp both
 
 $(BUILD)%.o: %.c
 	@echo Compiling $<
@@ -30,8 +30,27 @@ print:
 	@echo $(SRCS)
 	@echo $(OBJS)
 
-all: $(OBJS)
+$(TARGET): $(OBJS)
+	@echo Linking $(TARGET)
 	$(LD) $(OBJS) $(LDFLAGS) -o $(TARGET)
+	
+rh:   CFLAGS  += -DMODULE_RH
+rh:    $(TARGET)
+
+temp: CFLAGS  += -DMODULE_TEMP
+temp:  $(TARGET)
+
+all:  CFLAGS  += -DMODULE_RH
+all:  CFLAGS  += -DMODULE_TEMP
+all:   $(TARGET)
+
+both:
+	$(MAKE) clean
+	$(MAKE) rh
+	mv envi envi_rh
+	$(MAKE) clean
+	$(MAKE) temp
+	mv envi envi_temp
 
 clean:
-	-rm -f $(BUILD)*.o $(TARGET)
+	-rm -f $(BUILD)*.o $(TARGET) $(TARGET)_*
